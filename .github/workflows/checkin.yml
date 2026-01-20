@@ -1,36 +1,36 @@
 name: AnyRouter 自动签到
 于:
-  schedule:
-    - cron: '0 0 12 * * ?'
-  workflow_dispatch:
+  schedule: 
+    - cron: '0 4 * * *'  # 每天北京时间 12:00（UTC 04:00）执行
+  workflow_dispatch: 
 
-jobs:
-  checkin:
-    runs-on: windows-2025
+jobs: 
+  checkin: 
+    runs-on: windows-latest
     environment: production
-    env:
-      PYTHONIOENCODING: utf-8
-    steps:
+    env: 
+      PYTHONIOENCODING:  utf-8
+    steps: 
     - uses: actions/checkout@v4
 
     - uses: astral-sh/setup-uv@v3
-      with:
+      with: 
         version: "latest"
 
     - uses: actions/setup-python@v5
-      with:
+      with: 
         python-version: '3.11'
 
     - name: 缓存 UV 依赖
       uses: actions/cache@v4
       id: uv-cache
-      with:
+      with: 
         path: |
           ~/.cache/uv
-          .venv
-        key: ${{ runner.os }}-uv-${{ hashFiles('pyproject.toml', 'uv.lock') }}
+          . venv
+        key: ${{ runner.os }}-uv-${{ hashFiles('pyproject. toml', 'uv. lock') }}
         restore-keys: |
-          ${{ runner.os }}-uv-
+          ${{ runner. os }}-uv-
 
     - name: 安装依赖
       if: steps.uv-cache.outputs.cache-hit != 'true'
@@ -42,7 +42,7 @@ jobs:
     - name: 获取 Playwright 版本
       id: playwright-version
       run: |
-        $version = uv run python -c "import importlib.metadata; print(importlib.metadata.version('playwright'))"
+        $version = uv run python -c "import importlib.metadata; print(importlib.metadata. version('playwright'))"
         echo "version=$version" >> $env:GITHUB_OUTPUT
         echo "Playwright version: $version"
 
@@ -51,7 +51,7 @@ jobs:
       id: playwright-cache
       with:
         path: ~\AppData\Local\ms-playwright
-        key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+        key:  ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
         restore-keys: |
           ${{ runner.os }}-playwright-
 
@@ -65,20 +65,20 @@ jobs:
       uses: actions/cache@v4
       with:
         path: balance_hash.txt
-        key: balance-hash-${{ github.sha }}
-        restore-keys: |
+        key: balance-hash-${{ github. sha }}
+        restore-keys:  |
           balance-hash-
 
     - name: 执行签到
       env:
         ANYROUTER_ACCOUNTS: ${{ secrets.ANYROUTER_ACCOUNTS }}
-        PROVIDERS: ${{ secrets.PROVIDERS }}
+        PROVIDERS:  ${{ secrets.PROVIDERS }}
         DINGDING_WEBHOOK: ${{ secrets.DINGDING_WEBHOOK }}
         EMAIL_USER: ${{ secrets.EMAIL_USER }}
         EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
         EMAIL_TO: ${{ secrets.EMAIL_TO }}
-        EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
-        CUSTOM_SMTP_SERVER: ${{ secrets.CUSTOM_SMTP_SERVER }}
+        EMAIL_SENDER:  ${{ secrets.EMAIL_SENDER }}
+        CUSTOM_SMTP_SERVER: ${{ secrets. CUSTOM_SMTP_SERVER }}
         PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
         SERVERPUSHKEY: ${{ secrets.SERVERPUSHKEY }}
         FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
@@ -86,7 +86,7 @@ jobs:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         GOTIFY_URL: ${{ secrets.GOTIFY_URL }}
-        GOTIFY_TOKEN: ${{ secrets.GOTIFY_TOKEN }}
+        GOTIFY_TOKEN: ${{ secrets. GOTIFY_TOKEN }}
         GOTIFY_PRIORITY: ${{ secrets.GOTIFY_PRIORITY }}
       run: |
         uv run checkin.py
@@ -95,4 +95,4 @@ jobs:
       if: always()
       run: |
         echo "签到任务执行完成"
-        echo "时间: $(Get-Date)"
+        echo "时间:  $(Get-Date)"
